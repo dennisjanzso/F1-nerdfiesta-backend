@@ -52,4 +52,4 @@ def get_race_plot():
     DI.getRacePlot(ticket, int(request.json['raceId']))
     return send_file('cache/' + ticket + '.png', mimetype='image/gif')
     
-app.run()
+app.run(host='0.0.0.0', port=8080)
