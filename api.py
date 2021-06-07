@@ -23,6 +23,15 @@ def get_past_races():
 def get_future_races():
     return DI.getFutureRaces()
 
+@app.route('/current-drivers', methods=['GET'])
+def get_current_races():
+    return DI.getCurrentDrivers()
+
+@app.route('/driver-details', methods=['POST'])
+@cross_origin()
+def get_driver_details():
+    return DI.getDriverDetails(int(request.json['driverId']))
+
 @app.route('/race-prediction', methods=['POST'])
 @cross_origin()
 def get_race_prediction():
@@ -50,6 +59,13 @@ def get_race_plot():
     ticket = ss.getTicket()
     print('Request from POST:', request.json['raceId'])
     DI.getRacePlot(ticket, int(request.json['raceId']))
+    return send_file('cache/' + ticket + '.png', mimetype='image/gif')
+
+@app.route('/driver-plot', methods=['POST'])
+@cross_origin()
+def get_driver_plot():
+    ticket = ss.getTicket()
+    DI.getDriverCluster(ticket, int(request.json['driverId']))
     return send_file('cache/' + ticket + '.png', mimetype='image/gif')
     
 app.run(host='0.0.0.0', port=8080)

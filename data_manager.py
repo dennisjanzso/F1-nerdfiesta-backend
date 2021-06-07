@@ -107,3 +107,11 @@ class DataManager():
         res_unique = results.drop_duplicates('driverId', keep='first')
         drivers = pd.merge(drivers, res_unique, how='inner', on=['driverId'])
         return drivers[['driverId', 'driverRef', 'constructorId']]
+
+    def getDriverDetails(self, driverId):
+        driver = self.drivers.loc[lambda d: d['driverId'] == driverId]
+        return driver
+    
+    def getDriverResults(self, driverId):
+        results = self.results.loc[lambda r: r['driverId'] == driverId]
+        return results

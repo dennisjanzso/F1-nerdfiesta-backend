@@ -8,6 +8,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from matplotlib.patches import Rectangle
 import math
+from sklearn.cluster import KMeans
 
 team_colors = {
     131: '#00D2BE',
@@ -145,3 +146,45 @@ class PredResultPlotter(Strategy):
         plt.xticks(x_ticks, x_labels)
         
         fig.savefig('cache/'+savename+'.png', dpi = 300)
+        
+class KmeansPlotter(Strategy):
+    def do_algorithm(self, data_manager, driverId, k=3, savename='kmeans'):
+        plt.clf()
+        driver_res = data_manager.getDriverResults(driverId)[['grid', 'positionOrder']]
+
+        distortions = []
+        K = range(1,10)
+        for k in K:
+            kmeanModel = KMeans(n_clusters=k)
+            kmeanModel.fit(driver_res)
+            distortions.append(kmeanModel.inertia_)
+
+        k = 1
+        changes = []
+            
+        for i in range(0, len(distortions)):
+            try:
+                t = abs(distortions[i]/distortions[i+1])
+                print(i+1, ' t: ', t)
+                changes.append(t)
+            except:
+                pass
+        
+        avg = sum(changes)/len(changes)
+        
+        print(avg)
+        
+        for i in range(0, len(changes)):
+            if changes[i] < avg:
+                k=i+1
+                break
+
+        print('k: ', k)
+        
+        kmeans = KMeans(n_clusters=k).fit(driver_res)
+        centroids = kmeans.cluster_centers_
+        plt.scatter(driver_res['grid'], driver_res['positionOrder'], c= kmeans.labels_.astype(float), s=50, alpha=0.5)
+        plt.scatter(centroids[:, 0], centroids[:, 1], c='red', s=50, marker="^")
+        plt.xlabel("Grid")
+        plt.ylabel("Finishing position")
+        plt.savefig('cache/'+savename+'.png', dpi = 300)

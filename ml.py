@@ -11,6 +11,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+import joblib
 
 class DriverModel():
     def __init__(self, DM, driverId, driver_name):
@@ -56,6 +57,7 @@ class DriverQualyModel(DriverModel):
         self.df = pd.get_dummies(self.df, columns=['constructorId', 'year', 'circuitId'])
         self.X = self.df.drop(['position', 'raceId', 'driverId'], axis=1)
         self.y = self.df[['position']]
+        self.mode = 'q'
         
     def getPrediction(self, rnd, constructorId, year, circuitId):
         pred_values = {}
@@ -78,6 +80,7 @@ class DriverRaceModel(DriverModel):
         self.df = pd.get_dummies(self.df, columns=['constructorId', 'year', 'circuitId'])
         self.X = self.df.drop(['positionOrder', 'resultId', 'raceId', 'driverId'], axis=1)
         self.y = self.df[['positionOrder']]
+        self.mode = 'r'
         
     def getPrediction(self, grid, rnd, weather, constructorId, year, circuitId):
         pred_values = {}
@@ -110,7 +113,7 @@ class RegModels():
             self.race_models[driver['driverRef']].genModel(n)
             print(self.race_models[driver['driverRef']].getModelScore())
             print('Is model valid: ', self.race_models[driver['driverRef']].getValidModel())
-        #print(self.race_models)
+        
         
     def buildQualyModels(self, n):
         for i, driver in self.currentDrivers.iterrows():
@@ -162,7 +165,7 @@ class RegModels():
         return error
 
 class Predictor():
-    def __init__(self, data_manager, build_n=100):
+    def __init__(self, data_manager, build_n=1):
         self.DM = data_manager
         self.RM = RegModels(self.DM)
         self.Viz = visualizer.Visualizer(self.DM, visualizer.PredResultPlotter())
