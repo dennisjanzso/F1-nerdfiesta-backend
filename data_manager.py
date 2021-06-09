@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from datetime import date
+import ast
 
 class DataManager():
     def __init__(self):
@@ -22,6 +23,7 @@ class DataManager():
         self.weather = pd.read_csv('data/weather.csv')
         self.regData = pd.DataFrame()
         self.qualyRegData = pd.DataFrame()
+        self.driverMentions = pd.DataFrame()
         
     def getRaceData(self, raceId):
         lap_times = self.lap_times.loc[lambda lap_time: lap_time['raceId'] == raceId]
@@ -106,7 +108,7 @@ class DataManager():
         drivers = pd.merge(drivers, self.drivers, how='inner', on=['driverId'])
         res_unique = results.drop_duplicates('driverId', keep='first')
         drivers = pd.merge(drivers, res_unique, how='inner', on=['driverId'])
-        return drivers[['driverId', 'driverRef', 'constructorId']]
+        return drivers[['driverId', 'driverRef', 'constructorId', 'code']]
 
     def getDriverDetails(self, driverId):
         driver = self.drivers.loc[lambda d: d['driverId'] == driverId]
@@ -115,3 +117,16 @@ class DataManager():
     def getDriverResults(self, driverId):
         results = self.results.loc[lambda r: r['driverId'] == driverId]
         return results
+
+    def setDriverMentions(self, df):
+        drivers = ast.literal_eval(df['driver'])
+        counts = ast.literal_eval(df['count'])
+        mentions = pd.DataFrame(list(zip(drivers, counts)), columns=['code', 'mentions'])
+        self.driverMentions = mentions
+
+    def getDriverMentions(self):
+        current_drivers = self.getSeasonDrivers(2021)
+        mentions = pd.merge(current_drivers, self.driverMentions, how='inner', on='code')
+        mentions = mentions.sort_values('mentions', ascending=False).reset_index(drop=True)
+        print(mentions)
+        return mentions

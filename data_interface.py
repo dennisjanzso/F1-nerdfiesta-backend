@@ -36,3 +36,10 @@ class DataInterface():
 
     def getDriverDetails(self, driverId):
         return {'driver': list(self.DM.getDriverDetails(driverId).T.to_dict().values())}
+
+    def setDriverMentions(self, df):
+        self.DM.setDriverMentions(df)
+
+    def getDriverMentions(self, ticket):
+        self.visualizer.strategy = visualizer.MentionsPlotter()
+        self.visualizer.execute_strategy(self.DM.getDriverMentions(), ticket)

@@ -67,5 +67,19 @@ def get_driver_plot():
     ticket = ss.getTicket()
     DI.getDriverCluster(ticket, int(request.json['driverId']))
     return send_file('cache/' + ticket + '.png', mimetype='image/gif')
+
+@app.route('/update-driver-mentions', methods=['POST'])
+@cross_origin()
+def set_driver_mentions():
+    DI.setDriverMentions(request.form)
+    return 'OK'
     
+@app.route('/mentions-plot', methods=['GET'])
+@cross_origin()
+def get_mentions_plot():
+    ticket = ss.getTicket()
+    DI.getDriverMentions(ticket)
+    return send_file('cache/' + ticket + '.png', mimetype='image/gif')
+
+
 app.run(host='0.0.0.0', port=8080)

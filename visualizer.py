@@ -188,3 +188,22 @@ class KmeansPlotter(Strategy):
         plt.xlabel("Grid")
         plt.ylabel("Finishing position")
         plt.savefig('cache/'+savename+'.png', dpi = 300)
+
+class MentionsPlotter(Strategy):
+    def do_algorithm(self, data_manager, df, savename='mentions'):
+        fig = plt.figure(figsize=(18, 6))
+        ax = fig.gca()
+        
+        ffont = {'fontname':'monospace'}
+        labels = []
+
+        for i, row in df.iterrows():
+            ax.bar(x=i+1, height=row['mentions'], width=1, color=team_colors[row['constructorId']], edgecolor='black', linewidth=1)
+            labels.append(row['code'])
+
+        x_ticks = np.arange(1, len(labels)+1, 1)
+        plt.xticks(x_ticks, labels)
+        ax.set_ylabel('Mentions', fontsize=25)
+        
+        fig.savefig('cache/'+savename+'.png', dpi = 300)
+        
